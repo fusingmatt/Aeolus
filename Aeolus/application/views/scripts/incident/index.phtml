@@ -1,11 +1,11 @@
 <table id="index">
-	<tr><td>Id</td><td>Title</td></tr>
+	<tr><th>Id</th><th>Title</th><th>Verified?</th></tr>
 	<?php foreach ($this->models as $model):?>
 		<tr><td><?php echo $this->escape($model->getId())?></td>
 		<td><a href="<?php echo $this->url(
             array('controller'=>'incident', 'action'=>'view', 'id' => $model->getId()),
             'default',
             true) ?>"><?php echo $this->escape($model->getTitle())?></a></td>
-        <td><?php echo ($model->getVerified()) ? 'yes' : 'no' ; ?></td></tr>
+        <td><?php echo ($model->getVerified()) ? 'Yes' : 'No' ; ?></td></tr>
 	<?php endforeach ?>
 </table>
