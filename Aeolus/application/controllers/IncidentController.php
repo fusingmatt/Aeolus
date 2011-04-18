@@ -68,6 +68,7 @@ class IncidentController extends Zend_Controller_Action
         $model->setDescription($values['description']);
         $model->setLatitude($values['latitude']);
         $model->setLongitude($values['longitude']);
+        $model->setVerified(false);
         
         // Save the model.
         $mapper = new Application_Model_IncidentMapper();
