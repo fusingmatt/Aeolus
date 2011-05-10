@@ -1,6 +1,17 @@
 
 <div class="view">
-<h1>Details of <?php echo $this->model->getTitle();?></h1><br />
+<h1>Details of <?php echo $this->model->getTitle();?></h1>
+<?php $url = $this->url(
+		array('controller'=>'incident', 'action'=>'edit', 'id' => $this->model->getId()),
+		'default', true);?>
+	<a href="<?php echo $url ?>
+		">edit incident</a>
+<?php $url = $this->url(
+		array('controller'=>'incident', 'action'=>'assignpersonnel', 'id' => $this->model->getId()),
+		'default', true);?>
+	<a href="<?php echo $url ?>
+		">assign personnel</a>
+<br />
 <span class="details"><?php echo $this->model->getDescription();?></span><br />
 <span>Verified: <?php echo ($this->model->getVerified()) ? 'Yes' : 'No' ; ?></span>
 <?php if(!$this->model->getVerified()):?>
@@ -9,5 +20,9 @@
 		'default', true);?>
 	<span class="verifylink"><a href="<?php echo $url ?>
 		">Verify incident</a></span>
+<?php endif;?>
+<?php if($this->model->getLatitude() && $this->model->getLongitude()) :?>
+	<div id="map-label">Location </div>
+	<div id="map_canvas"></div>
 <?php endif;?>
 </div>

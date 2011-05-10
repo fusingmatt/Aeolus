@@ -1,72 +1,99 @@
 <?php
-class Application_Model_IncidentMapper
+class Application_Model_IncidentMapper extends Application_Model_AbstractMapper
 {
 	protected $_dbTable;
- 
-    public function setDbTable($dbTable)
+ 	protected $_dbTableName = 'Incidents';
+ 	
+    public static function createDataArray($model)
     {
-        if (is_string($dbTable)) {
-            $dbTable = new $dbTable();
-        }
-        if (!$dbTable instanceof Zend_Db_Table_Abstract) {
-            throw new Exception('Invalid table data gateway provided');
-        }
-        $this->_dbTable = $dbTable;
-        return $this;
-    }
- 
-    public function getDbTable()
-    {
-        if (null === $this->_dbTable) {
-            $this->setDbTable('Application_Model_DbTable_Incident');
-        }
-        return $this->_dbTable;
-    }
-    public function save(Application_Model_Incident $model) {
-    	$data = array(
+    	 $data =  array(
             'title'   => $model->getTitle(),
             'description' => $model->getDescription(),
     		'latitude' => $model->getLatitude(),
     		'longitude' => $model->getLongitude(),
-    		'verified' => $model->getVerified()
+    		'twitter_id' => $model->getTwitterId()
         );
+        $verified = $model->getVerified();
+        if (!empty($verified)) {
+        	$data['verified'] = $model->getVerified();
+        }
         
-        if (null === ($id = $model->getId())) {
-            unset($data['id']);
-            $this->getDbTable()->insert($data);
-        } else {
-            $this->getDbTable()->update($data, array('id = ?' => $id));
-        }
+        return $data;
     }
-    public function find($id) {
-    	$result = $this->getDbTable()->find($id);
-        if (0 == count($result)) {
-            return;
-        }
-        $model = new Application_Model_Incident();
-        $row = $result->current();
+ 	public static function createAndPopulateModel($row) 
+    {
+    	$model = new Application_Model_Incident();
         $model->setId($row->id);
-        $model->setTitle($row->title);
-        $model->setDescription($row->description);
-        $model->setLatitude($row->latitude);
-        $model->setLongitude($row->longitude);
-        $model->setVerified($row->verified);
-        return $model;
+		$model->setTitle($row->title);
+		$model->setDescription($row->description);
+		$model->setLatitude($row->latitude);
+		$model->setLongitude($row->longitude);
+		$model->setVerified($row->verified);
+		$model->setTwitterId($row->twitter_id);
+	    return $model;
     }
-    public function fetchAll() {
-    	$resultSet = $this->getDbTable()->fetchAll();
-        $models = array();
-        foreach ($resultSet as $row) {
-            $model = new Application_Model_Incident();
-            $model->setId($row->id);
-            $model->setTitle($row->title);
-            $model->setDescription($row->description);
-	        $model->setLatitude($row->latitude);
-	        $model->setLongitude($row->longitude);
-	        $model->setVerified($row->verified);
-            $models[] = $model;
-        }
-        return $models;
+
+	public static function createAndPopulateModelFromArray($array)
+    {
+    	// Construct and populate the model. getValues() returns an array and we need an object.
+        // Therefore we simply cast it. The @ supresses notices that result from this.
+    	$values = (object) $array;
+    	$model = Application_Model_IncidentMapper::createAndPopulateModel($values);
+	    return $model;    
+    }
+    
+    public function fetchUsersIncidents($id) 
+    {
+    	$sql = "SELECT * 
+				FROM incidents i
+				LEFT JOIN user_incident ui ON ui.incident_id = i.id
+				WHERE ui.user_id =1
+				LIMIT 0 , 30";
+    	$rows = $this->getDbTable()->getAdapter()->fetchAll($sql);
+    	$models = array();
+    	foreach($rows as $row) {
+    		$models[] = $this->createAndPopulateModelFromArray($row);
+    	}
+    	return $models;
+    }
+    
+	public function assignUserToIncident($user_id, $incident_id) 
+    {
+    	$sql = "INSERT INTO user_incident VALUES ($user_id, $incident_id)";
+    	$db = $this->getDbTable()->getAdapter();
+    	
+    	try {
+    		$db->query($sql);
+    	} catch (Exception $e) {
+    	}
+    }
+
+	public function unAssignUserToIncident($user_id, $incident_id) 
+    {
+    	$sql = "DELETE FROM user_incident WHERE user_id = $user_id AND incident_id = $incident_id";
+    	$db = $this->getDbTable()->getAdapter();
+    	
+    	
+    	$db->query($sql);
+    }
+    
+	public function getAssignUserToIncidentFormData($incident_id) 
+    {
+    	$sql = "SELECT * FROM user_incident WHERE incident_id = '$incident_id'";
+    	$rows = $this->getDbTable()->getAdapter()->fetchAll($sql);
+    	
+    	$data = array();
+    	foreach($rows as $row) {
+    		$data[$row['user_id']] = 1;
+    	}
+    	return $data;
+    }
+    public function twitterIdExists($id)
+    {
+    	$sql = "SELECT * FROM incidents WHERE twitter_id = '$id'";
+    	$rows = $this->getDbTable()->getAdapter()->fetchAll($sql);
+    	
+    	return !empty($rows);
     }
 }
 ?>

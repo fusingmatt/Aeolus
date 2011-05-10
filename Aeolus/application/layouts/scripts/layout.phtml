@@ -20,6 +20,11 @@
 			            'default',
 			            true) ?>">Report Incident</a>
 			            <br />
+			    <a href="<?php echo $this->url(
+			            array('controller'=>'user', 'action'=>'myhome'),
+			            'default',
+			            true) ?>">My home page</a>
+			            <br />
 			        <a href="<?php echo $this->url(
 			            array('controller'=>'incident'),
 			            'default',
@@ -30,9 +35,25 @@
 			            'default',
 			            true) ?>">Incident map</a>
 			              <br />
+			        <a href="<?php echo $this->url(
+			            array('controller'=>'user', 'action'=>'index'),
+			            'default',
+			            true) ?>">List users</a>
+			              <br />
+			        <a href="<?php echo $this->url(
+			            array('controller'=>'incident', 'action'=>'importtwitter'),
+			            'default',
+			            true) ?>">Import from twitter</a>
+			              <br />
 			           <?php echo $this->loggedInAs(); ?> 
 			</div>
 			<div id="middle">
+				<div class="messages">
+					<?php foreach(Zend_Controller_Action_HelperBroker::getStaticHelper('flashMessenger')
+					             ->getMessages() as $message) : ?>
+						<p><?php echo $this->escape($message);?></p>
+					<?php endforeach; ?>
+				</div>
 				<?php echo $this->layout()->content ?> 
 			</div>			
 			<div id="right">

@@ -6,6 +6,14 @@
             array('controller'=>'incident', 'action'=>'view', 'id' => $model->getId()),
             'default',
             true) ?>"><?php echo $this->escape($model->getTitle())?></a></td>
+<<<<<<< HEAD
         <td><?php echo ($model->getVerified()) ? 'Yes' : 'No' ; ?></td></tr>
+=======
+        <td><?php echo ($model->getVerified()) ? 'yes' : 'no' ; ?></td>
+        <td><a href="<?php echo $this->url(
+            array('controller'=>'incident', 'action'=>'delete', 'id' => $model->getId()),
+            'default',
+            true) ?>">Delete</a></td></tr>
+>>>>>>> 42b2ee584e5eb7d25b98de439eee2e4eb32d55c6
 	<?php endforeach ?>
 </table>
